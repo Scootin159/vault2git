@@ -15,10 +15,6 @@ namespace vault2git
         {
             if (!CommandLine.Parser.Default.ParseArguments(args, options)) { return; }
 
-#if DEBUG
-            options.GitEXEPath = @"C:\Users\Scott\AppData\Local\GitHub\PortableGit_c2ba306e536fdf878271f7fe636a147ff37326ad\cmd\git.exe";
-#endif
-
             using (Log log = new Log())
             {
                 Log.Info(string.Format("Starting processing of {0}", options.VaultRepoPath));
