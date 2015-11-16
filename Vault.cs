@@ -34,6 +34,7 @@ namespace vault2git
                 args.Add("-enddate");
                 args.Add(Program.options.EndDate);
             }
+            args.Add("-rowlimit"); args.Add("0");
             args.Add("\"" + Program.options.VaultRepoPath + "\"");
             string output = RunCommand("versionhistory", args.ToArray());
 
