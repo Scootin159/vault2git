@@ -36,6 +36,7 @@ namespace vault2git
             logfile.Write(DateStamp);
             logfile.Write(": ");
             logfile.WriteLine(message);
+            logfile.Flush();
         }
 
         #endregion
