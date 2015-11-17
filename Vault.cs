@@ -27,12 +27,12 @@ namespace vault2git
             if(!string.IsNullOrWhiteSpace(Program.options.StartDate))
             {
                 args.Add("-begindate");
-                args.Add(Program.options.StartDate);
+                args.Add("\"" + Program.options.StartDate + "\"");
             }
             if (!string.IsNullOrWhiteSpace(Program.options.EndDate))
             {
                 args.Add("-enddate");
-                args.Add(Program.options.EndDate);
+                args.Add("\"" + Program.options.EndDate + "\"");
             }
             args.Add("-rowlimit"); args.Add("0");
             args.Add("\"" + Program.options.VaultRepoPath + "\"");
@@ -76,12 +76,12 @@ namespace vault2git
             if (!string.IsNullOrWhiteSpace(Program.options.StartDate))
             {
                 args.Add("-begindate");
-                args.Add(Program.options.StartDate);
+                args.Add("\"" + Program.options.StartDate + "\"");
             }
             if (!string.IsNullOrWhiteSpace(Program.options.EndDate))
             {
                 args.Add("-enddate");
-                args.Add(Program.options.EndDate);
+                args.Add("\"" + Program.options.EndDate + "\"");
             }
             args.Add(" -rowlimit"); args.Add("0");
             args.Add(" -datesort"); args.Add("asc");
