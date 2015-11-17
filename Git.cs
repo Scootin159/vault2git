@@ -10,6 +10,8 @@ namespace vault2git
 {
     class Git
     {
+        private static int commit_count = 0;
+
         public static void InitWorkingDirectory()
         {
             Log.Info("Initializing working directory");
@@ -55,6 +57,13 @@ namespace vault2git
             }
             commit_args.Add("-a");
             RunCommand("commit", version.date, commit_args.ToArray());
+
+            commit_count++;
+
+            if (commit_count % 50 == 0)
+            {
+                RunCommand("gc", null);
+            }
         }
 
         public static void CreateTag(Label label)
@@ -84,26 +93,55 @@ namespace vault2git
             process.StartInfo.WorkingDirectory = Program.options.GitWorkingPath;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
+            output = new StringBuilder();
+            process.OutputDataReceived += Process_OutputDataReceived;
             process.StartInfo.RedirectStandardError = true;
+            error = new StringBuilder();
+            process.ErrorDataReceived += Process_ErrorDataReceived;
             if (date.HasValue)
             {
                 process.StartInfo.EnvironmentVariables.Add("GIT_COMMITTER_DATE", date.Value.ToString("yyyy-MM-ddTHH:mm:ss"));
             }
             process.Start();
 
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
 
-            process.WaitForExit();
-            process.Close();
+            process.WaitForExit();            
 
-            if (!string.IsNullOrWhiteSpace(output))
+            lock(output)
             {
-                Log.Debug(string.Format("Git output: \r\n{0}", output));
+                if (output.Length > 0)
+                {
+                    Log.Debug(string.Format("Git output: \r\n{0}", output));
+                }
             }
-            if (!string.IsNullOrWhiteSpace(error))
+            lock(error)
             {
-                Log.Debug(string.Format("Git error: \r\n{0}", error));
+                if (error.Length > 0)
+                {
+                    Log.Debug(string.Format("Git error: \r\n{0}", error));
+                }
+            }
+
+            process.Close();
+        }
+
+        private static StringBuilder output = null;
+        private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                lock (output) { output.AppendLine(e.Data); }
+            }
+        }
+
+        private static StringBuilder error = null;
+        private static void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                lock (error) { error.AppendLine(e.Data); }
             }
         }
     }
