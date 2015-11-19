@@ -30,6 +30,20 @@ namespace vault2git
                     sw.WriteLine("*.vssscc");
                 }
             }
+
+            string gitattributesfile = Path.Combine(Program.options.GitWorkingPath, ".gitattributes");
+            if (!File.Exists(gitattributesfile))
+            {
+                Log.Info("Writing a default .gitattributes file");
+                using (StreamWriter sw = new StreamWriter(gitattributesfile))
+                {
+                    sw.WriteLine("# Auto detect text files and perform LF normalization");
+                    sw.WriteLine("* text=auto");
+                    sw.WriteLine();
+                    sw.WriteLine("# Custom for Visual Studio");
+                    sw.WriteLine("*.cs     diff=csharp");
+                }
+            }
         }
 
         public static void CommitVersion(Version version)
