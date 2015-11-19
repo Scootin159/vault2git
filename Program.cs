@@ -82,6 +82,7 @@ namespace vault2git
             foreach (string file in Directory.GetFiles(options.GitWorkingPath))
             {
                 if (file.Equals(Path.Combine(options.GitWorkingPath, ".gitignore"))) { continue; }
+                if (file.Equals(Path.Combine(options.GitWorkingPath, ".gitattributes"))) { continue; }
                 Log.Debug("Deleting file " + file);
                 File.Delete(file);
             }
