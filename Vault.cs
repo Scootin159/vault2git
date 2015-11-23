@@ -108,6 +108,9 @@ namespace vault2git
                 }
             }
 
+            // sort based on the txids numerically
+            txids.Sort();
+
             Log.Info(string.Format("{0} complex change txids loaded", txids.Count));
 
             return txids.ToArray();
@@ -116,7 +119,7 @@ namespace vault2git
         public static Label[] GetLabelHistory()
         {
             Log.Info("Getting Vault label history");
-
+            
             List<string> args = new List<string>();
             if (!string.IsNullOrWhiteSpace(Program.options.StartDate))
             {
@@ -139,6 +142,9 @@ namespace vault2git
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(output);
 
+            DateTime? startdate = string.IsNullOrEmpty(Program.options.StartDate) ? (DateTime?)null : DateTime.Parse(Program.options.StartDate);
+            DateTime? enddate = string.IsNullOrEmpty(Program.options.EndDate) ? (DateTime?)null : DateTime.Parse(Program.options.EndDate);
+
             foreach (XmlNode node in xml.DocumentElement.SelectNodes("//vault/history/item"))
             {
                 if (node.NodeType != XmlNodeType.Element) { continue; }
@@ -146,12 +152,31 @@ namespace vault2git
                 if (element == null) { continue; }
 
                 Label label = new Label();
+                label.version = int.Parse(element.Attributes["version"].Value);
                 label.date = DateTime.Parse(element.Attributes["date"].Value);
                 label.actionString = element.Attributes["actionString"].Value;
+
+                if ((startdate.HasValue && (label.date < startdate.Value)) ||
+                    (enddate.HasValue && (label.date > enddate.Value)))
+                {
+                    Log.Debug("Skipping label due to date being out of range: " + label.actionString);
+                    continue;
+                }
+
                 labels.Add(label);
             }
 
+            // sort based on the versions numerically
+            labels.Sort(new Comparison<Label>(delegate (Label a, Label b)
+            {
+                return a.version.CompareTo(b.version);
+            }));
+
             Log.Info(string.Format("{0} labels loaded", labels.Count));
+            foreach(Label label in labels)
+            {
+                Log.Debug("Label: " + label.Tag + " loaded for date " + label.date.ToString());
+            }
 
             return labels.ToArray();
         }

@@ -8,6 +8,7 @@ namespace vault2git
 {
     struct Label
     {
+        public int version;
         public DateTime date;
         public string actionString;
 
@@ -15,13 +16,7 @@ namespace vault2git
         {
             get
             {
-                if(actionString.StartsWith("Labeled Build "))
-                {
-                    return "v" + actionString.Substring(14);
-                } else
-                {
-                    return actionString;
-                }
+                return "v" + actionString.Replace("Labeled ", string.Empty).Replace("Build ", string.Empty);
             }
         }
     }
