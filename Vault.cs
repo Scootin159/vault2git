@@ -50,6 +50,7 @@ namespace vault2git
                 if(element == null) { continue; }
 
                 Version version = new Version();
+                version.txid = int.Parse(element.Attributes["txid"].Value);
                 version.version = int.Parse(element.Attributes["version"].Value);
                 version.date = DateTime.Parse(element.Attributes["date"].Value);
                 version.user = element.Attributes["user"].Value;
@@ -66,6 +67,50 @@ namespace vault2git
             Log.Info(string.Format("{0} versions loaded", versions.Count));
 
             return versions.ToArray();
+        }
+
+        public static int[] GetComplexChangeTxids()
+        {
+            Log.Info("Getting Vault complex changes history");
+
+            List<string> args = new List<string>();
+            if (!string.IsNullOrWhiteSpace(Program.options.StartDate))
+            {
+                args.Add("-begindate");
+                args.Add("\"" + Program.options.StartDate + "\"");
+            }
+            if (!string.IsNullOrWhiteSpace(Program.options.EndDate))
+            {
+                args.Add("-enddate");
+                args.Add("\"" + Program.options.EndDate + "\"");
+            }
+            args.Add(" -rowlimit"); args.Add("0");
+            args.Add(" -datesort"); args.Add("asc");
+            args.Add(" -includeactions"); args.Add("delete,move,rename,rollback,share");
+            args.Add("\"" + Program.options.VaultRepoPath + "\"");
+            string output = RunCommand("history", args.ToArray());
+
+            List<int> txids = new List<int>();
+
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(output);
+
+            foreach (XmlNode node in xml.DocumentElement.SelectNodes("//vault/history/item"))
+            {
+                if (node.NodeType != XmlNodeType.Element) { continue; }
+                XmlElement element = node as XmlElement;
+                if (element == null) { continue; }
+
+                int txid = int.Parse(element.Attributes["txid"].Value);
+                if (!txids.Contains(txid))
+                {
+                    txids.Add(txid);
+                }
+            }
+
+            Log.Info(string.Format("{0} complex change txids loaded", txids.Count));
+
+            return txids.ToArray();
         }
 
         public static Label[] GetLabelHistory()
@@ -119,6 +164,7 @@ namespace vault2git
                 "-merge", "overwrite",
                 "-setfiletime", "checkin",
                 "-makewritable",
+                "-useworkingfolder",
                 version.version.ToString(),
                 "\"" + Program.options.VaultRepoPath + "\"",
                 "\"" + Program.options.GitWorkingPath + "\"");

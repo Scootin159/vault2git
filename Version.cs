@@ -8,6 +8,7 @@ namespace vault2git
 {
     struct Version
     {
+        public int txid;
         public int version;
         public DateTime date;
         public string user;

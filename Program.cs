@@ -24,6 +24,7 @@ namespace vault2git
                 Vault.SetWorkingDirectory();
 
                 Version[] versions = Vault.GetVersionHistory();
+                int[] complextxids = Vault.GetComplexChangeTxids();
                 Label[] labels = Vault.GetLabelHistory();
 
                 int last_label_written = -1;
@@ -50,7 +51,24 @@ namespace vault2git
                     #endregion
 
                     Log.Info(string.Format("Processing version {0} of {1}", i, versions.Length));
-                    CleanWorkingDirectory();
+
+                    #region Clean working directory (if needed)
+                    if (i == 0)
+                    {
+                        CleanWorkingDirectory();
+                    }
+                    else
+                    {
+                        for (int j = versions[i - 1].txid; j <= version.txid; j++)
+                        {
+                            if(complextxids.Contains<int>(j))
+                            {
+                                CleanWorkingDirectory();
+                                break;
+                            }
+                        }
+                    }
+                    #endregion
                     Vault.GetVersion(version);
                     Git.CommitVersion(version);
                 }
@@ -72,6 +90,8 @@ namespace vault2git
 
         static void CleanWorkingDirectory()
         {
+            Log.Debug("A complex change was detected, clearing the working directory");
+
             foreach (string directory in Directory.GetDirectories(options.GitWorkingPath))
             {
                 if (directory.Equals(Path.Combine(options.GitWorkingPath, ".git"))) { continue; }
