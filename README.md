@@ -38,7 +38,7 @@ Command-line options:
 To properly map authors, make sure to have a file named "authors.xml" within the root directory.  GitHub will automatically (and retroactively where required) match users based on the email address.
 
 Here is a sample authors.xml file:
-<authors>
-	<author vaultname="John" name="John Smith" email="john@exmple.com" />
-	<author vaultname="Jane" name="John Smith" email="jane@exmple.com" />
-</authors>
+    <authors>
+        <author vaultname="John" name="John Smith" email="john@exmple.com" />
+        <author vaultname="Jane" name="John Smith" email="jane@exmple.com" />
+    </authors>
