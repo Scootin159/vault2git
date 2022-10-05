@@ -41,6 +41,6 @@ Here is a sample authors.xml file:
 ```
 <authors>
     <author vaultname="John" name="John Smith" email="john@exmple.com" />
-    <author vaultname="Jane" name="John Smith" email="jane@exmple.com" />
+    <author vaultname="Jane" name="Jane Smith" email="jane@exmple.com" />
 </authors>
 ```
