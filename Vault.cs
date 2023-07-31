@@ -19,6 +19,36 @@ namespace vault2git
                 "\"" + Program.options.GitWorkingPath + "\"");
         }
 
+        private static string EscapeCommentQuotes(string input)
+        {
+          string cleanedContents = "";
+          using (StringReader reader = new StringReader(input))
+          {
+            string line = string.Empty;
+            do
+            {
+              line = reader.ReadLine();
+              if (line != null)
+              {
+                int startNdx = line.IndexOf("comment=\"");
+                int endNdx = line.IndexOf("\" objverid");
+                string newline = line;
+                if (startNdx > -1)
+                {
+                  startNdx += 9;
+                  string comment = line.Substring(startNdx, endNdx - startNdx);
+                  string encoded = XmlConvert.EncodeName(comment);
+                  newline = line.Substring(0, startNdx);
+                  newline += encoded;
+                  newline += line.Substring(endNdx);
+                };
+                cleanedContents += newline + "\n";
+              }
+            } while (line != null);
+            return cleanedContents;
+          }
+        }
+
         public static Version[] GetVersionHistory()
         {
             Log.Info("Getting Vault version history");
@@ -36,12 +66,14 @@ namespace vault2git
             }
             args.Add("-rowlimit"); args.Add("0");
             args.Add("\"" + Program.options.VaultRepoPath + "\"");
+
             string output = RunCommand("versionhistory", args.ToArray());
+            var cleanoutput = EscapeCommentQuotes(output);
 
             List<Version> versions = new List<Version>();
 
             XmlDocument xml = new XmlDocument();
-            xml.LoadXml(output);
+            xml.LoadXml(cleanoutput);
 
             foreach (XmlNode node in xml.DocumentElement.SelectNodes("//vault/history/item"))
             {
