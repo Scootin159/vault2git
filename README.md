@@ -10,6 +10,7 @@ To run, simply call the program vault2git.exe with the appropriate command-line 
 You can either start with an empty (or non-existing) working directory, or by using the "--start" parameter, you can append to an existing repository starting with the specified vault history version.
 
 Command-line options:
+```
   --vault_path      (Default: C:\Program Files (x86)\SourceGear\Vault
                     Client\vault.exe) The path to the SourceGear Vault command
                     line utility (vault.exe)
@@ -27,7 +28,7 @@ Command-line options:
   -o, --output      Required. The Git output working directory
   --logfile         (Default: log.txt) The log file path
   --help            Display this help screen.
-
+```
   What is converted:
   - File check-ins
   - File deletions
